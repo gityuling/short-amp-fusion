@@ -1,12 +1,34 @@
 # Compact Multiview Fusion for Short Antimicrobial Peptide Identification
 
-Version 1.0.0 · [Zenodo archive](https://doi.org/10.5281/zenodo.24358016) · [GitHub](https://github.com/gityuling/short-amp-fusion)
+Score short peptides from a FASTA file with the three trained classifiers. Each record should contain 11–30 standard amino acids. The output CSV lists the record ID, each classifier's AMP score, and the mean score.
 
-Download and extract **short-amp-fusion-1.0.0.zip**. Run the commands below from the extracted directory. This release contains the study code, recorded parameters, source download registry, sequence-free test scores and case evidence. Third-party datasets and encoder weights are retrieved from their original sources.
+**Zenodo v1.1.0** · [DOI 10.5281/zenodo.24358282](https://doi.org/10.5281/zenodo.24358282) · [Download checkpoints and FASTA scorer (4.18 MB)](https://zenodo.org/records/24358282/files/short-amp-fusion-checkpoints-1.1.0.zip?download=1) · [Download study code (397 KB)](https://zenodo.org/records/24358282/files/short-amp-fusion-1.0.0.zip?download=1)
+
+## Predict from FASTA
+
+Download both ZIP files to the same directory. On Linux with Python 3.10 and a CUDA-capable GPU, run this setup once in a fresh environment:
+
+```sh
+unzip short-amp-fusion-1.0.0.zip
+cd short-amp-fusion-1.0.0
+unzip ../short-amp-fusion-checkpoints-1.1.0.zip
+sha256sum -c checkpoint-SHA256SUMS
+python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu128
+python -m pip install -r reproduction/requirements.lock.txt
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/shengxiliu/PPsAMP.git PPsAMP
+GIT_LFS_SKIP_SMUDGE=1 git -C PPsAMP checkout 8efc6d78f8a2afda1766c8fcb05df4d8cfa86544
+python tools/download_inputs.py --group ppsamp-assets --group esm-assets --root .
+```
+
+From that directory, score your FASTA file:
+
+```sh
+python predict_fasta.py input.fasta > scores.csv
+```
 
 ## Verify the main results on a CPU
 
-With Python 3.10 or 3.11 and NumPy 1.26.4 installed:
+For this check, extract only the study code ZIP and run the following command from its project root with Python 3.10 or 3.11 and NumPy 1.26.4 installed:
 
 ```sh
 python verify.py
